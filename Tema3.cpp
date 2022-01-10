@@ -27,14 +27,32 @@ Tema3::~Tema3()
 void Tema3::Init()
 {
     srand(time(0));
-    colors.resize(8);
-    for (int i = 0; i < 8; i++) {
-        colors[i].resize(8);
-        for (int j = 0; j < 8; j++) {
+    grid_size = 8;
+    nrOfDancers = 7;
+    distance = 0.9f;
+    dancersPos.resize(nrOfDancers);
+    dancersPos_dup.resize(nrOfDancers);
+
+    colors.resize(grid_size);
+    for (int i = 0; i < grid_size; i++) {
+        colors[i].resize(grid_size);
+        for (int j = 0; j < grid_size; j++) {
             colors[i][j].x = (float)(rand() % 100) / 100;
             colors[i][j].y = (float)(rand() % 100) / 100;
             colors[i][j].z = (float)(rand() % 100) / 100;
         }
+    }
+
+    for (int i = 0; i < nrOfDancers; i++) {
+        dancersPos[i].x = (float) (rand() * i % 9 - 5.f);
+        dancersPos[i].y = 0.25f;
+        dancersPos[i].z = (float) (-rand() * i % 10 - 2.5f);
+        dancersPos[i].colorx = (float)(rand() % 100) / 100; 
+        dancersPos[i].colory = (float)(rand() % 100) / 100; 
+        dancersPos[i].colorz = (float)(rand() % 100) / 100; 
+        dancersPos[i].moveX = rand() % 2;
+        dancersPos[i].moveY = rand() % 2;
+        dancersPos_dup[i] = dancersPos[i];
     }
 
     {
@@ -94,8 +112,8 @@ void Tema3::Update(float deltaTimeSeconds)
     
     // Render ground
     {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
+        for (int i = 0; i < grid_size; i++) {
+            for (int j = 0; j < grid_size; j++) {
                 glm::mat4 modelMatrix = glm::mat4(1);
                 modelMatrix = glm::translate(modelMatrix, glm::vec3(-7.f + 2.f * j, 0.01f, -2.f * i));
                 modelMatrix = glm::scale(modelMatrix, glm::vec3(0.04f));
@@ -104,6 +122,43 @@ void Tema3::Update(float deltaTimeSeconds)
             }
         }
         
+    }
+
+    // Render dancers 
+    {
+        for (int i = 0; i < nrOfDancers; i++) {
+            glm::mat4 modelMatrix = glm::mat4(1);
+            modelMatrix = glm::translate(modelMatrix, glm::vec3(dancersPos[i].x, dancersPos[i].y, dancersPos[i].z));
+            modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f));
+            MyRenderSimpleMesh(meshes["box"], shaders["LabShader"], modelMatrix, glm::vec3(dancersPos[i].colorx, dancersPos[i].colory, dancersPos[i].colorz));
+
+        }
+    }
+
+    // dancers movement 
+    {
+        for (int i = 0; i < nrOfDancers; i++) {
+            if (dancersPos[i].x < dancersPos_dup[i].x + distance && dancersPos[i].moveX == 1) {
+                dancersPos[i].x += deltaTimeSeconds;
+            }
+            else if (dancersPos[i].x >= dancersPos_dup[i].x + distance)
+                dancersPos[i].moveX = 0;
+            if (dancersPos[i].z < dancersPos_dup[i].z + distance && dancersPos[i].moveY == 1) {
+                dancersPos[i].z += deltaTimeSeconds;
+            }
+            else if (dancersPos[i].z >= dancersPos_dup[i].z + distance)
+                dancersPos[i].moveY = 0;
+            if (dancersPos[i].x >= dancersPos_dup[i].x - distance && dancersPos[i].moveX == 0) {
+                dancersPos[i].x -= deltaTimeSeconds;
+            }
+            else if (dancersPos[i].x < dancersPos_dup[i].x - distance)
+                dancersPos[i].moveX = 1;
+            if (dancersPos[i].z >= dancersPos_dup[i].z - distance && dancersPos[i].moveY == 0) {
+                dancersPos[i].z -= deltaTimeSeconds;/**/
+            }
+            else if (dancersPos[i].z < dancersPos_dup[i].z - distance)
+                dancersPos[i].moveY = 1;
+        }
     }
 
 }

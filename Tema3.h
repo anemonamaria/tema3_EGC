@@ -44,8 +44,22 @@ namespace m1
             float z;
         } gridcolors;
 
-        vector<vector<gridcolors_t>> colors;
+        struct dancers_t {
+            float x;
+            float y;
+            float z;
+            float colorx;
+            float colory;
+            float colorz;
+            int moveX, moveY;
+        } dancers;
+        vector<dancers_t> dancersPos;
+        vector<dancers_t> dancersPos_dup;
 
+        vector<vector<gridcolors_t>> colors;
+        int grid_size;
+        int nrOfDancers;
+        float distance;
         // TODO(student): If you need any other class variables, define them here.
         int typeOfLight;
     };
